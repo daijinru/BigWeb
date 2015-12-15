@@ -98,16 +98,20 @@ bash是Bourne Again Shell的简称，是从unix系统中的sh发展而来，是�
 * 命令通过通道符|连接
 * 能够接受标准输入（stdin),如tail/more/grep等
 * 能够接收来自于前一个指令的数据成为stdin进行处理
-* grep指令，grep [-cinv] 'key' filename,支持正则
-* -c，计算字符出现的个数，
-* -i，忽略大小写进行查找；
-* -n，输出行号；
-* -v，显示没有该字符的行；
-* sort指令，sort[-fbknrtu]filename
-* -f，忽略大小写；
-* -b，忽略空格；
-* -M，以月份英文名排序；
-* -n，使用数字排序；
-* -r，逆向排序；
-* -t，分隔符，默认是tab分割；
-* -k，以第几列来排序。
+* grep 指令，grep [-cinv] 'key' filename,支持正则
+   * -c，计算字符出现的个数，
+   * -i，忽略大小写进行查找；
+   * -n，输出行号；
+   * -v，显示没有该字符的行；
+* sort 指令，sort[-fbknrtu]filename
+   * -f，忽略大小写；
+   * -b，忽略空格；
+   * -M，以月份英文名排序；
+   * -n，使用数字排序；
+   * -r，逆向排序；
+   * -t，分隔符，默认是tab分割；
+   * -k，以第几列来排序。
+* wc指令，wc[-lwm]filename,统计功能。
+   * -l，统计行；
+   * -w，统计词；
+   * -m，统计字符；
