@@ -13,16 +13,19 @@ bash是Bourne Again Shell的简称，是从unix系统中的sh发展而来，是�
 * 每种shell的功能比较类似，但是语法稍有不同
 
 ## bash shell的变量概述
+
 ### 变量是代表一些值得符号：
 * 可以通过变量来设置shell或者其他程序。
 * 变量存在于内存中。
 * Linux有自定义变量local和环境变量environment
 * 自定义变量和环境变量作用范围不同
+
 ### 可以通过以下指令来查看变量
 * set可以查看所有变量
 * env可以查看所有的环境变量
 
 ## bash shell有以下几种设置方式：
+
 * 通过自定义变量来设置
     * VARIABLE = value 定义变量
     * echo $VARIABLE 获取变量值
@@ -40,5 +43,16 @@ bash是Bourne Again Shell的简称，是从unix系统中的sh发展而来，是�
     * type -a alias名称
     * unalias删除定义
 * 通过set指令设置
+    * set自身查看所有变量值
+    * 设置shell内部的属性值（set -o noclobber,set -o vi)
 * 通过环境变量设置
+    * 自定义变量只能在当前的shell环境中生效
+    * 环境变量会在整个主机下的shell环境中生效
+    * 使用$ export[variable name]来设置
+* PATH环境变量
+    * 系统预设的环境变量
+    * 执行一些没有指定路径的指令时回去该路径中找
+    * PATH=$PATH.:将隐藏路径设置到PATH中，会带来安全问题。
+
+
 
