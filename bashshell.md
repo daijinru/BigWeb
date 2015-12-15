@@ -63,6 +63,20 @@ bash是Bourne Again Shell的简称，是从unix系统中的sh发展而来，是�
 * 登录的时候执行哪些程序
 * 分为login和non-login脚本
 
+### login shell:
+* 通过完整的登录流程时运行的shell。
+* 首先会读取/etc/profile(PATH/USER/HOSTNAME/HISTSIZE等）。
+* 读取/etc/profile.d/*.sh(颜色、语言、指令别名等）。
+* ~/.bash_profile、~/.bash_login、~/.profile（只依次读取其中一个）。
+* source加载指令变更
+
+### non-login shell：
+* 不需要登录即可运行shell,如su和原bash下的新bash动作。
+* ~/.bash_rc、/etc/bashrc。
+   * 读取/etc/profile.d/*.sh（颜色、语言、指令别名等）
+* ~/.bash_logout：
+   * 在注销用户时会运行的脚本
+   * 可以执行备份、缓存和临时文件清理等任务
 
 
 
