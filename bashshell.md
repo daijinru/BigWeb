@@ -54,5 +54,15 @@ bash是Bourne Again Shell的简称，是从unix系统中的sh发展而来，是�
     * 执行一些没有指定路径的指令时回去该路径中找
     * PATH=$PATH.:将隐藏路径设置到PATH中，会带来安全问题。
 
+## shell startup scripts
+
+### 用户登录或其他非登录动作时会自动执行的一些shell脚本：
+* 建立自定义环境变量或者执行set指令设置shell
+* 建立环境变量，设置其他程序
+* 使用alias，简化后续的操作
+* 登录的时候执行哪些程序
+* 分为login和non-login脚本
+
+
 
 
