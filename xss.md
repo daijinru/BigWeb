@@ -11,7 +11,9 @@ XSS的危害？
 挂马
 
 Payload（有效荷载）
+```
 <img src =0 onerror=alert(5)>
+```
 PoC?
 用于验证漏洞是否存在
 Exp?
