@@ -451,4 +451,39 @@ registerForm.onsubmit = function(){             //如果errormsg有确切返回�
 发布－订阅模式又叫观察者模式，它定义对象间的一种一对多的依赖关系，当一个对象的状态发生变化时，所依赖于它的对象都将得到通知。
 在javascript开发中，我们一般用事件模型来替代传统的发布－订阅模式。
 
+```
+define(function(require, exports, module) {
+    var observer = {};                             // 创建一个储存仓库
+
+    var util = {
+        // 订阅方法
+        subscribe: function (name, func) {
+            if (!observer[name]) {        // 在储存仓库内添加一个事件仓库
+                observer[name] = [];
+            }
+            observer[name].push(func);
+        },
+
+
+        // 发布方法
+        publish: function (name, arg) {
+            if (!observer[name]){                   // 判断是否有本仓库
+                return false;
+            }
+            observer[name].forEach(function (item) {       // 遍历执行
+                item(arg);
+            });
+        }
+
+    }
+
+    module.exports = util;
+});
+
+```
+## 六、适配器模式
+
+### 定义：
+适配器模式(Adapter) 是将一个类（对象）的接口（方法或属性）转化成客户希望的另外一个接口（方法或属性），适配器模式使得原本由于接口不兼容而不能一起工作的那些类（对象）可以一起工作。速成包装器（wrapper）。
+
 
