@@ -38,6 +38,7 @@ Coffee.prototype.init = function(){
 var coffee = new Coffee();
 coffee.init();
 ```
+
 ####  2.泡一杯茶
 和泡咖啡的步骤相差不大
 * 把水煮沸
@@ -102,6 +103,7 @@ Drunk.prototype.init = function(){
     this.add();
 }                                                    
 ```
+
 ####  4.创建coffee和tea子类
 现在创建一个Drunk类的对象对我们来说没有意义，因为饮品有非常多种，在这里Drunk只是一个抽血的存在。接下来我们要创建咖啡喝茶类，让他们继承饮品Drunk类。
 ```
@@ -140,6 +142,7 @@ Tea.prototype.add = function(){
 var tea = new Tea();
 tea.init();
 ```
+
 #### 5.总结
 在上面栗子中，Drunk.prototype.init，就是所谓的模版方法。
 因为方法中封装了子类的算法框架，它作为一个算法的模版，指导子类以何种顺序去执行哪些方法。在Drunk.prototype.init方法中，算法内的每一个步骤都是清楚展现在我们眼前的。
@@ -200,6 +203,7 @@ order(3,true,500);
 order(3,true,0);
 ```
 以上代码中order函数非常巨大，而且需要经常进行修改。虽然能正常运行，但不利于后期维护。
+
 #### 2.用职责链模式重构代码
 先把500元订单、200元订单以及普通购买分成3个函数。让500元订单函数处理，如果该函数不符合处理条件，则把请求传递到200元订单函数。如果200元订单函数不能处理，则把请求传递给普通购买函数处理。
 ```
@@ -234,6 +238,7 @@ order500(3,true,500);
 order500(3,true,0);
 
 ```
+
 ## 三、建造者模式
 
 ### 定义：
@@ -255,6 +260,7 @@ var Web = function(){
     this.js='高大上';
 }
 ```
+
 #### 2.老板说没问题。翻滚吧！程序员！
 程序员首先搭建html，搭建css，搭建js，然后把html，css，js写得高大上。
 ```
@@ -277,6 +283,7 @@ var Builder = function(){
     }
 }
 ```
+
 #### 3.老板就指指点点说，先弄这个，再弄这个
 ```
 var Director = function(){
@@ -287,6 +294,7 @@ var Director = function(){
     }
 }
 ```
+
 ####4.客户呼唤老板交稿
 ```
 var builder = new Builder();
@@ -325,6 +333,7 @@ console.log(hightWeb);
     </div>
 </form>
 ```
+
 #### 1.封装策略类
 我们创建一个策略对象strategies，并把算法类型都在里面分别封装起来。
 ```
@@ -348,6 +357,7 @@ var strategies = {
 
 };
 ```
+
 #### 2.封装验证类
 * add方法接收到registerForm.userName,[{strategy:'minLength:6'},{errorMsg:'用户名长度不能少于6位'}];
 * strategyAry就把'minLength:6'通过冒号区分了策略和参数
@@ -391,6 +401,7 @@ Validator.prototype.start=function(){
     }
 }
 ```
+
 #### 3.客户调用代码
 先创建一个validator对象，然后通过validator.add方法，往validator对象添加一些校验规则。validator.add方法接受3个参数。
 registerForm.password 为参与验证的输入框。minLength:6 是一个以冒号隔开的字符串。冒号前的minlength代表客户挑选的strategy对象，冒号后面的6表示校验需要的必要参数。第三个参数就是返回的错误信息。
@@ -437,6 +448,7 @@ registerForm.onsubmit = function(){             //如果errormsg有确切返回�
 使用策略模式重构代码之后，我们仅仅通过配置的方法就可以完成一个表单的校验，
 这些校验规则也可以服用在程序的任何地方，还能作为插件的形式，方便地被移植到其它项目中。
 在修改校验规则的时候，只需要编写或改动少量的代码。
+
 #### 4.总结
 策略模式是一种可常用且有效的设计模式，从案例中我们可以总结出策略模式的一些优点：
 * 策略模式利用组合，委托和多态，有效地避免了多重条件语句。
@@ -481,9 +493,137 @@ define(function(require, exports, module) {
 });
 
 ```
+
 ## 六、适配器模式
 
 ### 定义：
 适配器模式(Adapter) 是将一个类（对象）的接口（方法或属性）转化成客户希望的另外一个接口（方法或属性），适配器模式使得原本由于接口不兼容而不能一起工作的那些类（对象）可以一起工作。速成包装器（wrapper）。
 
+## 七、享元模式
+
+### 定义：
+享元模式是一种用于性能优化的模式。运行共享技术避免大量拥有相同内容的小类的开销(如耗费内存)，使大家共享一个类(元类)。
+##### 内部状态与外部状态
+享元模式要求将对象的属性划分为内部状态和外部状态（状态这里通常指属性）
+* 内部状态存储于对象内部
+* 内部状态可以被一些对象共享
+* 内部状态独立于具体的场景，通常不会改变
+* 外部状态取决于具体的场景，并根据场景而变化，外部状态不能被共享
+
+### 例子：汽车登记事例
+#### 1.一般般的
+数据量小到没多大的影响，数据量大的时候对计算机内存会产生压力。
+```
+var Car =function(make,model,year,owner,tag,renewDate){
+   this.make=make;
+   this.model=model;
+   this.year=year;
+   this.owner=owner;
+   this.tag=tag;
+   this.renewDate=renewDate;
+}
+
+Car.prototype = {
+   getMake:function(){
+       returnthis.make;
+   },
+   getModel:function(){
+       returnthis.model;
+   },
+   getYear:function(){
+       returnthis.year;
+   },
+   transferOwner:function(owner,tag,renewDate){
+       this.owner=owner;
+       this.tag=tag;
+       this.renewDate=renewDate;
+   },
+   renewRegistration:function(renewDate){
+       this.renewDate=renewDate;
+   }
+
+```
+接着我们使用享元模式优化一下。
+
+#### 2.包含核心数据的Car类
+```
+var Car=function(make,model,year){
+   this.make=make;
+   this.model=model;
+   this.year=year;
+}
+Car.prototype={
+   getMake:function(){
+       returnthis.make;
+   },
+   getModel:function(){
+       returnthis.model;
+   },
+   getYear:function(){
+       returnthis.year;
+   }
+}
+
+```
+
+#### 3.中间对象，用于实例化Car类
+```
+var CarFactory=(function(){
+   var createdCars = {};
+
+   return {
+       createCar:function(make,model,year){
+           var car=createdCars[make+"-"+model+"-"+year];
+           console.log(createdCars)
+           return car ? car : createdCars[make +'-'+ model +'-'+ year] =(new Car(make,model,year));
+
+       }
+   }
+})();
+
+```
+
+#### 4.数据工厂，用来处理Car的实例化和整合附加数据
+```
+var CarRecordManager = (function() {
+
+   var carRecordDatabase = {};
+   return {
+
+       addCarRecord:function(make,model,year,owner,tag,renewDate){
+           var car = CarFactory.createCar(make, model, year);
+           carRecordDatabase[tag]={
+               owner:owner,
+               tag:tag,
+               renewDate:renewDate,
+               car:car
+           }
+       },
+
+       transferOwnership:function(tag, newOwner, newTag, newRenewDate){
+           var record=carRecordDatabase[tag];
+           record.owner = newOwner;
+           record.tag = newTag;
+           record.renewDate = newRenewDate;
+       },
+
+       renewRegistration:function(tag,newRenewDate){
+           carRecordDatabase[tag].renewDate=newRenewDate;
+       },
+
+       getCarInfo:function(tag){
+           return carRecordDatabase[tag];
+       }
+   }
+
+})();
+
+CarRecordManager.addCarRecord("奔驰","car","2016","曹江涛","888","2016-2018");
+CarRecordManager.addCarRecord("奔驰","car","2015","范明非","19888","2016-2019");
+CarRecordManager.addCarRecord("奔驰","car","2015","朱华宇","19888","2016-2019");
+
+console.log(CarRecordManager.getCarInfo("888"));
+console.log(CarRecordManager.getCarInfo("19888"));
+
+```
 
