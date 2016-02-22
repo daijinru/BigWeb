@@ -93,8 +93,231 @@ function test()
 　　var end= new Date();
 　　//console.log(end - start);
 }
-
 ```
 <p>插入污染变量，埋点，输出或返回！</p>
+
+## AOP的做法
+```
+function test() { alert(2);} //原来的业务逻辑函数
+
+Function.prototype.before = function(fn){
+　　//干扰代码
+}
+Function.prototype.after = function(fn){
+　　//干扰代码
+}
+
+test.before(function(){
+　　//想执行的具体内容
+});
+test.after(function(){
+　　//想执行的具体内容
+});
+```
+### 如何做到先执行before，再执行test？
+```
+function test() { alert(2);}
+
+Function.prototype.before = function(fn)
+{
+　　//问：如何做到before在test之前执行？答：先执行fn，然后当前的函数再执行
+　　//问：如何拿到当前的test？答：使用this就行了
+　　var __self = this; //把this先保留下来，以便以后使用
+　　fn();//执行自己
+　　__self.apply(this,arguments);//再执行test
+}
+
+test.before(function(){
+　　//想执行的具体内容
+　　alter(1);
+});
+```
+
+### 如何做到先执行test，再执行after？
+```
+function test() { alert(2);}
+
+Function.prototype.after = function(fn){
+//如何做到在函数执行之后再执行？答：先执行this函数本身，再执行回调
+    var __self = this;
+    __self.apply(this,arguments);//先执行test
+    fn();//再执行自己
+};
+
+test.after(function(){
+　　//想执行的具体内容
+　　alter(3);
+});
+```
+
+### test中有返回值的处理
+```
+function test() {
+　　alert(2);
+　　return “我要返回！！”;
+}
+Function.prototype.before = function(fn)
+{
+　　var __self = this; //把this先保留下来，以便以后使用
+　　fn();//执行自己
+　　return __self.apply(this,arguments);//加return进行test值返回
+}
+test.before(function(){ alter(1);});
+```
+
+### 整理后代码结果
+
+```
+function test() { alert(2);}
+
+Function.prototype.before = function(fn)
+{　　var __self = this; //把this先保留下来，以便以后使用
+　　fn();//执行自己
+　　__self.apply(this,arguments);//再执行test
+}
+
+Function.prototype.after = function(fn)
+{　　var __self = this;
+　　__self.apply(this,arguments);//先执行test
+　　fn();//再执行自己
+};
+test.before(function(){　alter(1); 　});
+test.after(function(){　alter(3); 　});
+```
+<p>默认函数被执行了两次，怎么办？</p>
+
+### 以test作为中转，将before的回调和before一起送到after去也可以将after和test一起送到before去
+
+```
+function test() { alert(2);}
+
+Function.prototype.before = function(fn){
+    var __self = this;
+    //增加回调，挂载self，并改写before的fn
+    return function(){
+        fn.apply(this,arguments);
+        __self.apply(this,arguments);
+    };
+}; 
+
+test.before(function(){　alter(1); 　})();
+```
+
+### before中this指针的变化
+
+```
+function test() { alert(2);}
+
+Function.prototype.before = function(fn)
+{　　var __self = this; //把this先保留下来，以便以后使用
+　　return function(){
+　　　　//此时this的指向已经发生了改变，被returne出去了，变成了window
+　　　　//console.log(this);
+　　　　fn.apply(this,arguments);//执行自己
+　　　　__self.apply(this,arguments);//再执行test
+　　}
+}
+
+test.before(function(){　alter(1); 　})();
+```
+### 保留this指针
+
+```
+function test() { alert(2);}
+
+Function.prototype.before = function(fn)
+{　　var __self = this; //把this先保留下来，以便以后使用
+　　return function(){
+　　　　//保留this指针
+　　　　fn,apply(__self,arguments);//执行自己
+　　　　__self.apply(__self,arguments);//再执行test
+　　}
+}
+
+test.before(function(){　alter(1); 　})();
+```
+
+### 相应改写after,用原型链执行
+
+```
+function test() { alert(2);}
+
+Function.prototype.after = function(fn){ //这里的fn为before返回回来的结果
+    var __self = this;
+    return function(){
+        __self.apply(__self,arguments);
+        fn.apply(this,arguments);
+    };
+};
+test.before(function(){
+    alert(1);
+}).after(function(){   
+  // 当前this 指向 before 返回的function 不在指向 test 即__self 指向window 本身 undefined
+    alert(3);
+})();
+```
+<p>//挂载self=>test，执行before回调，执行self，after自己执行回调</p>
+
+### 终止挂载
+
+```
+function test() { alert(2);}
+
+Function.prototype.before = function(fn)
+{　　var __self = this; //把this先保留下来，以便以后使用
+　　return function(){
+　　　　if(fn(__self,arguments)==false){ return false; };
+　　　　__self.apply(__self,arguments);//再执行test
+　　}
+}
+test.before(function(){
+    alert(1);
+    return false;
+}).after(function(){
+    alert(3);
+})();
+```
+<p>//挂载self=>test，执行before回调，执行self，after自己执行回调</p>
+
+```
+function test() { alert(2); }
+
+Function.prototype.after = function(fn){
+    var __self = this;
+    return function(){
+        if(__self.apply(__self,arguments) == false)
+	{ return false; };
+        fn.apply(this,arguments);
+    };
+};
+```
+
+### 业务返回值的处理
+
+```
+function test() { alert(2); return “我要返回！！”;}
+
+Function.prototype.before = function(fn){
+    var __self = this;
+    return function(){
+        if(fn.apply(__self,arguments) == false)
+        { return false; }
+        return __self.apply(__self,arguments);
+    };
+};
+
+Function.prototype.after = function(fn){
+    var __self = this;
+    return function(){
+        var result = __self.apply(__self,arguments);
+        if(result == false)
+        { return false; }
+        fn.apply(this,arguments);
+        return result;
+    };
+};
+```
+
+
 
 
