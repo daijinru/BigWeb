@@ -5,12 +5,12 @@
 
 # 相关技术要点回顾（1）
 
-
-
-```
 JavaScript的prototype
 JavaScript的prototype返回对象类型原型的引用，使我们有能力向对象添加属性和方法。
+
+```
 <script>
+<script type="text/javascript">
 function employee(name,job,born)
 {
 this.name=name;
@@ -23,5 +23,6 @@ employee.prototype.salary=null;
 bill.salary=20000;
 
 document.write(bill.salary);
+</script>
 ```
 
