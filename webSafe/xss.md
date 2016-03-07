@@ -158,9 +158,22 @@ Function startTimer(){
 ```
 可以很遗憾的发现进行了一个整形的转换，代表着尖括号、引号之类的都插不进去，只能插入整数。
 老样子来闭合一下img的onload=“startTime(‘111’)的引号和括号。
+```
 <img src=”/static/loading.gif”  onload=”startTimer(‘  111’);alert(‘0  ’);”/>,
-提取payload：111’);alert(‘0 ，然后把分号和括号转译，
-打开：http://evilcos.me/lab/xssor/，转译 ‘和;为%27)%3balert(%270
+```
+提取
+```
+payload：111’);alert(‘0 
+```
+然后把分号和括号转译，
+打开：
+```
+http://evilcos.me/lab/xssor/
+```
+转译 ‘和;为
+```
+%27)%3balert(%270
+```
 
 Level 5：Breaking protocol
 在输入框中输入字符，点击，发现字符出现在url尾部，与level1同理。

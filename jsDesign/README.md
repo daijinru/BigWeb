@@ -884,3 +884,567 @@ var user = (function(){
 </script>
 
 ```
+
+## 九、构造函数模式
+
+### 定义：
+构造函数用于创建特定类型的对象—不仅声明了使用的对象，构造函数还可以接受参数，以便第一次创建对象的时候设置对象的成员值。你可以自定义自己的构造函数，然后在里面声明自定义对象的属性或方法。
+
+### 作用：
+1. 用于创建特定类型的对象
+2. 第一次声明的时候给对象赋值
+3. 自己声明构造函数，赋予属性和方法
+### 注意：
+* 声明函数的时候处理业务逻辑
+* 区分和单例的区别，配合单例实现初始化
+* 构造函数大写字母开头
+* 注意new的成本
+
+### 实例：
+``` javascript
+   function User(id, name, old) {
+        this.id = id;
+        this.name = name;
+        this.old = old;
+        this.loginStatus = false;
+    }
+```
+
+## 十、原型模式
+
+### 定义：
+原型模式（prototype）是指用原型实例指向创建对象的种类，并且通过拷贝这些原型来创建新的对象。
+
+### 作用：
+原型对象本身就是有效利用了每个构造器创建的对象。
+
+### 注意：
+1. 注意的依然是深拷贝和浅拷贝的问题，免得出现引用问题。
+2. 现有的文献里查看原型模式的定义，没有针对javascript的，你可能发现很多讲解的都是关于类的，但是现实情况是基于原型继承的javascript完全避免了类（class）的概念。
+
+### 实例：
+``` javascript
+    User.prototype = {
+        checkPassword: function (passwd) {
+            if(passwd == 123) {
+                this.loginStatus = true;
+            } else {
+                this.loginStatus = false;
+            }
+        },
+        login: function (passwd) {
+            this.checkPassword(passwd);
+        },
+        logout: function () {
+            this.loginStatus = false;
+        },
+        changeName: function (name) {
+            this.name = name;
+        }
+    }
+```
+
+## 十一、工厂模式
+
+### 定义：
+* 提供一个创建一系列相关或相互依赖对象的接口，而无需指定他们具体的类。
+* 工厂就是把成员对象的创建工作转交给一个外部对象，好处在于消除对象之间的相互影响。通过使用工厂方法而不是new关键字及具体类，可以把所有实例化的代码都集中在一个位置，有助于创建模块化的代码，这是工厂模式的目的和优势。
+### 作用：
+1. 对象的构建十分复杂。
+2. 需要依赖具体的环境创建不同实例。
+3. 处理大量具有相同属性的小对象。
+### 分类：
+1. 简单工厂模式
+2. 抽象工厂模式：先设计一个抽象类，这个类不能被实例化，只能用来派生子类，最后通过对子类的扩展实现工厂方法。
+### 例子：
+``` javascript
+        var XMLHttpFactory = function() {};　　　　　　
+        //这是一个简单工厂模式        　　
+        XMLHttpFactory.createXMLHttp = function() {　　　　
+                var XMLHttp = null;　　　　
+                if (window.XMLHttpRequest) {　　　　　　
+                    XMLHttp = new XMLHttpRequest()　　　　
+                }
+                elseif(window.ActiveXObject) {　　　　　　
+                    XMLHttp = new ActiveXObject("Microsoft.XMLHTTP")　　　　
+                }　　
+                return XMLHttp;　　
+            }　　
+            //XMLHttpFactory.createXMLHttp()这个方法根据当前环境的具体情况返回一个XHR对象。        　　
+        var AjaxHander = function() {　　　　
+            var XMLHttp = XMLHttpFactory.createXMLHttp();　　　　...　　
+        }
+```
+``` javascript
+        var XMLHttpFactory = function() {};　
+         //这是一个抽象工厂模式
+        　　
+        XMLHttpFactory.prototype = {　　
+         //如果真的要调用这个方法会抛出一个错误，它不能被实例化，只能用来派生子类               　　
+                createFactory: function() {　　
+                    thrownew Error('This is an abstract class');　　
+                }　　
+            }　　
+//派生子类，文章开始处有基础介绍那有讲解继承的模式，不明白可以去参考原理         　　
+        var XHRHandler = function() {　　
+            XMLHttpFactory.call(this);　　
+        };　　
+        XHRHandler.prototype = new XMLHttpFactory();　　
+        XHRHandler.prototype.constructor = XHRHandler;　　 //重新定义createFactory 方法
+        　　
+        XHRHandler.prototype.createFactory = function() {　　
+            var XMLHttp = null;　　
+            if (window.XMLHttpRequest) {　　
+                XMLHttp = new XMLHttpRequest()　　
+            }
+            elseif(window.ActiveXObject) {　　
+                XMLHttp = new ActiveXObject("Microsoft.XMLHTTP")　　
+            }　　
+            return XMLHttp;　　
+        }
+```
+
+### 相关链接：
+* [Darren_聂微东 - 关注前端技术
+](http://www.cnblogs.com/Darren_code/archive/2011/08/31/JavascripDesignPatterns.html)
+* [听飞狐聊JavaScript设计模式系列](http://www.60sky.com/2015/11/20/fox/js7/)
+
+## 十二、外观模式
+
+### 定义：
+外观模式（Facade）为子系统中的一组接口提供了一个一致的界面，此模式定义了一个高层接口，这个接口使得这一子系统更容易使用。外观模式不仅简化类中的接口，而且对接口与调用者也进行了解耦。外观模式经常被认为开发者必备，它可以将一些复杂操作封装起来，并创建一个简单的接口用于调用。
+### 作用：
+1. 在设计初期，应要有意识的将不同两个层分离，比如经典的三层结构
+2. 在开发阶段，子系统往往因为不断的重构演化变得越来越复杂，增加外观F可以提供一个简单的接口，减少他们之间的依赖
+3. 在维护一个遗留的大型系统时，为系统开发一个外观Façade类，为设计粗糙和高度复杂的遗留代码提供比较清晰的接口，让系统和Façade对象交互。
+### 注意：
+外观模式被开发者连续使用时会产生一定的性能问题，因为在每次调用时都要检测功能的可用性
+### 例子：
+``` javascript
+        function stop(e) {
+            e.stopPropagation()
+            e.preventDefault()
+        }
+        Function addEvent(el, type, fn) {
+            If(el.addEventListener) {
+                el.addEventListener(type, fn, false)
+            } else if (el.attachEvent) {
+                el.attachEvent(‘on’ + type, fn)
+            } else {
+                el[‘on’ + type] = fn
+            }
+        }
+```
+
+### 相关链接：
+* [汤姆大叔的博客](http://www.cnblogs.com/TomXu/archive/2012/02/28/2353448.html)
+* [Snandy](http://www.cnblogs.com/snandy/archive/2012/12/18/2809768.html)
+
+## 十三、迭代器模式
+
+### 定义：
+迭代器模式提供一种方法顺序访问一个聚合对象中各个元素，而又不需要暴露该方法中的内部表示。
+### 作用：
+1. 为遍历不同的集合结构提供一个统一的接口，从而支持同样的算法在不同的几何结构上进行操作。
+2. 对于集合内部结果常常变化各异，我们不想暴露其内部结构的话，但又想让客户代码透明访问其中的内容，这种情况下我们可以使用迭代器模式。
+### 例子：
+``` javascript
+var qianduan = ["xiufang", "mingfei", "huayu","junyan"];
+var caolaoshi = (function() {
+    var length = qianduan.length,
+        index = 0;
+    return {
+        hasNext: function() {
+            return index < length;
+        },
+        next: function() {
+            var data = qianduan[index];
+            index = index + 2;
+            return data;
+        }
+    };
+})();
+while (caolaoshi.hasNext()) {
+    console.log(caolaoshi.next());
+}
+```
+
+## 十四、命令模式
+
+### 定义：
+命令模式中的命令指的是一个执行某些特定事件的指令。
+有时候需要向某些对象发送请求，但是并不知道请求的接受者是谁，也不知道被请求的操作是什么。此时希望用一种松耦合的方式来设计程序，使得请求发送者和请求接受者能够消除彼此之间的耦合关系。
+### 作用：
+1.  将函数的封装、请求、调用结合为一体。
+2. 调用具体的函数解耦命令对象与接收对象。
+3. 提高程序模块化的灵活性。
+### 注意：
+不需要接口一致，直接调用函数即可，以免造成浪费。
+### 例子：
+```javascript
+  var qianduan={};
+  qianduan.xiufang=function(lb_num){
+    alert('秀芳收到了曹老师指派的'+lb_num+'个任务');
+  }
+  qianduan.mingfei=function(lb_num){
+    alert('明非收到了曹老师指派的'+lb_num+'个任务');
+  }
+  qianduan.huayu=function(lb_num){
+    alert('华宇收到了曹老师指派的'+lb_num+'个任务');
+  }
+  qianduan.junyan=function(lb_num){
+    alert('君岩收到了曹老师指派的'+lb_num+'个任务');
+  }
+  qianduan.caolaoshi=function(commond){
+      qianduan[commond.xiaobing](commond.num);
+  }
+  qianduan.caolaoshi({
+    xiaobing:'junyan',
+    num:'5'
+  })
+```
+
+## 十五、代理模式
+
+### 定义：
+代理模式是为一个对象提供一个代用品或者占位符，以便控制对它的访问。
+代理模式的关键是，当客户不方便直接访问一个对象或者不满足需要的时候，提供一个替身对象来控制对这个对象的访问。
+客户实际是访问的是替身对象，替身对象对请求作出一些处理之后，再把请求转交给本体对象。
+### 结构：
+代理模式的关键是，当客户不方便直接访问一个对象或者不满足需要的时候，提供一个替身对象来控制对这个对象的访问，客户实际上访问的是替身对象。替身对象对请求做出一些处理之后，再把请求转交给本体对象
+### 其他代理模式：
+1、远程代理（一个对象将不同空间的对象进行局部代理）。
+2、虚拟代理（根据需要创建开销很大的对象如渲染网页暂时用占位代替真图）
+3、安全代理（控制真是对象的访问权限）
+4、智能指引（调用对象代理处理另外一些事情如垃圾回收机制）
+^(*￣(oo)￣)^  不能滥用代理，有的时候仅仅给代码增加复杂度
+### 相关资料：
+* [汤姆大叔的博客](http://www.cnblogs.com/TomXu/archive/2012/02/29/2354979.html.png)
+### 实例：
+* 普通加载图片
+``` javascript
+var myImage = (function(){
+  //创建一个文本对象
+  var imgNode = document.creatElement( 'img' );
+  //网页面中创建一个标签
+  document.body.appendChild( imgNode );
+  return {
+    setSrc: function(src){
+    //提供一个对外的setSrc接口，可以给img标签设置src属性
+      imgNode.src = src;
+    }
+  }
+})
+```
+
+## 十六、装饰着模式
+
+### 定义：
+* 装饰者模式可以动态地 给某个对象添加一些额外的职责,而不会影响从这个类中派生的其他对象。
+* 装饰者模式能够在不改变对象自身的基础上,在程序运行期间给对象动态地添加职责。跟继承相比,装饰者是一种更轻便灵活的做法,这是一种“即用即付”的方式,比如天冷了就多穿一件外套,需要飞行时就在头上插一支竹蜻蜓,遇到一堆丧尸的时候就启动群攻技能。
+
+#### 模拟传统面向对象语言的装饰者模式
+``` javascript
+  //首先是原始的飞机类：
+  var Plane = function(){}
+  Plane.prototype.fire = function(){
+    console.log('发射普通子弹')
+  }
+  var MissileDecorator = function(plane){
+    this.plane = plane;
+  }
+  MissileDecorator.prototype.fire = function(){
+    this.plane.fire()；
+    console.log('发射导弹')；
+  }
+  var AtomDecorator = function(plane){
+    this.plane = plane
+  }
+  AtomDecorator.prototype.fire = function(){
+    this.plane.fire();
+    console.log('发射原子弹')；
+  }
+  var plane = new Plane();
+  plane = new MissileDecorator(plane);
+  plane = new AtomDecorator(plane);
+  plane.fire();
+```
+* 假设我们在编写一个飞机大战的游戏,随着经验值的增加,我们操作的飞机对象可以升级成 更厉害的飞机,一开始这些飞机只能发射普通的子弹,升到第二级时可以发射导弹,升到第三级 时可以发射原子弹。
+* 导弹类和原子弹类的构造函数都接受参数 plane 对象,并且保存好这个参数,在它们的 fire方法中,除了执行自身的操作之外,还调用 plane 对象的 fire 方法。
+####模拟传统面向对象语言的装饰者模式
+* 这种给对象动态增加职责的方式,并没有真正地改动对象自身,而是将对象放入另一个对象 之中,这些对象以一条链的方式进行引用,形成一个聚合对象。这些对象都拥有相同的接口(fire 方法),当请求达到链中的某个对象时,这个对象会执行自身的操作,随后把请求转发给链中的 下一个对象。
+* 因为装饰者对象和它所装饰的对象拥有一致的接口,所以它们对使用该对象的客户来说是透 明的,被装饰的对象也并不需要了解它曾经被装饰过,这种透明性使得我们可以递归地嵌套任意 多个装饰者对象
+###装饰者也是包装器
+* 在《设计模式》成书之前,GoF 原想把装 饰者(decorator)模式称为包装器(wrapper) 模式。
+* 从功能上而言,decorator 能很好地描述这 个模式,但从结构上看,wrapper 的说法更加 贴切。装饰者模式将一个对象嵌入另一个对象 之中,实际上相当于这个对象被另一个对象包 装起来,形成一条包装链。请求随着这条链依 次传递到所有的对象,每个对象都有处理这条 请求的机会
+
+####回到JavaScript的装饰者
+JavaScript 语言动态改变对象相当容易,我们可以直接改写对象或者对象的某个方法,并不 需要使用“类”来实现装饰者模式
+``` javascript
+  //首先是原始的飞机类：
+  var Plane = {
+    fire : function(){
+      console.log('发射普通子弹')
+    }
+  }
+  var MissileDecorator = function(){
+    console.log('发射导弹')；
+  }
+  var AtomDecorator = function(){
+    console.log('发射原子弹')；
+  }
+  var fire1 = plane.fire;
+  plane.fire = function(){
+    fire1();
+    missileDecorator();
+  }
+  var fire2 = plane.fire;
+  plane.fire = function(){
+    fire2();
+    AtomDecorator();
+  }
+  plane.fire();
+```
+
+###装饰函数
+保存原引用的方式就可以改写某个函数
+```
+var a = function(){
+    alert(1);
+  }
+var _a = a;
+a=function(){
+    _a();
+    alert(a);
+  }
+a();
+```
+这是实际开发中很常见的一种做法,比如我们想给 window 绑定 onload 事件,但是又不确定 这个事件是不是已经被其他人绑定过,为了避免覆盖掉之前的 window.onload 函数中的行为,我 们一般都会先保存好原先的 window.onload,把它放入新的 window.onload 里执行:
+```
+window.onload = function(){
+  alert ('onload1');
+}
+var _onload = window.onload || function(){};
+
+window.onload = function(){
+  _onload();
+  alert ('onload2');
+}
+```
+
+###装饰函数的问题
+* 这样的代码当然是符合开放封闭原则的,我们在增加新功能的时候,确实没有修改原来的 window.onload 代码,但是这种方式存在以下两个问题
+* 必须维护_onload 这个中间变量,虽然看起来并不起眼,但如果函数的装饰链较长,或者 需要装饰的函数变多,这些中间变量的数量也会越来越多。
+* 其实还遇到了 this 被劫持的问题,在 window.onload 的例子中没有这个烦恼,是因为调用 普通函数_onload 时,this 也指向 window,跟调用 window.onload 时一样(函数作为对象的 方法被调用时,this 指向该对象,所以此处 this 也只指向 window)。现在把 window.onload 换成 document.getElementById,代码如下:
+
+>This 劫持问题
+```
+var _getElementById = document.getElementById;
+
+  document.getElementById = function( id ){
+    alert (1);
+    return _getElementById( id ); // (1)
+  }
+  var button = document.getElementById( 'document' );
+// 执行这段代码,我们看到在弹出 alert(1)之后,紧接着控制台抛出了异常:
+// 输出: Uncaught TypeError: Illegal invocation
+```
+异常发生在(1) 处的_getElementById( id )这句代码上,此时_getElementById 是一个全局函数, 当调用一个全局函数时,this 是指向 window 的,而 document.getElementById 方法的内部实现需要 使用 this 引用,this 在这个方法内预期是指向 document,而不是 window, 这是错误发生的原因, 所以使用现在的方式给函数增加功能并不保险。
+```
+var _getElementById = document.getElementById;
+  document.getElementById = function(){
+    alert (1);
+    return _getElementById.apply( document, arguments );
+  }
+  var button = document.getElementById( 'button' );
+```
+但这样做显然很不方便
+
+####用AOP装饰函数
+首先给出 Function.prototype.before 方法和 Function.prototype.after 方法:
+```
+Function.prototype.before = function( beforefn ){
+    var _self = this; // 保存原函数的引用
+    return function(){ // 返回包含了原函数和新函数的"代理"函数
+      beforefn.apply( this, arguments ); // 执行新函数,且保证 this 不被劫持,新函数接受的参数 // 也会被原封不动地传入原函数,新函数在原函数之前执行
+      return _self.apply( this, arguments ); // 执行原函数并返回原函数的执行结果, 2 // 并且保证 this 不被劫持
+    }
+  }
+Function.prototype.after = function( afterfn ){
+  var _self = this;
+  return function(){
+    var ret = _self.apply( this, arguments );
+    afterfn.apply( this, arguments );
+    return ret;
+  }
+};
+```
+
+####用AOP装饰函数说明
+* Function.prototype.before 接受一个函数当作参数,这个函数即为新添加的函数,它装载了 新添加的功能代码。
+* 接下来把当前的 this 保存起来,这个 this 指向原函数,然后返回一个“代理”函数,这个“代理”函数只是结构上像代理而已,并不承担代理的职责(比如控制对象的访问等)。它的工作 是把请求分别转发给新添加的函数和原函数,且负责保证它们的执行顺序,让新添加的函数在原函数之前执行(前置装饰),这样就实现了动态装饰的效果。
+* 我们注意到,通过 Function.prototype.apply 来动态传入正确的 this,保证了函数在被装饰之后,this 不会被劫持。
+* Function.prototype.after 的原理跟 Function.prototype.before 一模一样,唯一不同的地方在于让新添加的函数在原函数执行之后再执行。
+```
+Function.prototype.before = function( beforefn ){
+  var _self = this;
+  return function(){
+    beforefn.apply(this,arguments);
+    return _self.apply( this, arguments );
+  }
+}
+
+document.getElementById = document.getElementById.before(function(){
+  alert ('before');
+});
+
+var button = document.getElementById( 'doc2' );
+```
+
+####应用AOP
+再回到 window.onload 的例子,看看用 Function.prototype.before 来增加新的 window.onload 事件是多么简单:
+```
+ window.onload = function(){
+    alert ('AOP1');
+  }
+  window.onload = ( window.onload || function(){} ).after(function(){
+    alert ('AOP2');
+  }).after(function(){
+    alert ('AOP3');
+  }).after(function(){
+    alert ('AOP4');
+  });
+```
+
+####应用AOP实现的另一种方法
+值得提到的是,上面的 AOP 实现是在 Function.prototype 上添加 before 和 after 方法,但许 多人不喜欢这种污染原型的方式,那么我们可以做一些变通,把原函数和新函数都作为参数传入 before 或者 after 方法
+```
+var before = function(fn, beforefn){
+    return function(){
+      beforefn.apply(this, arguments);
+      return fn.apply(this, arguments);
+    }
+  }
+  var a = before(
+    function(){alert('new 3')},
+    function(){alert('new 2')}
+  );
+  a = before(a, function(){alert('new 1');});
+a();
+```
+
+###实例
+####AOP 的应用实例-插件式的表单验证
+在一个 Web 项目中,可能存在非常多的表单,如 注册、登录、修改用户信息等。在表单数据提交给后台之前,常常要做一些校验,比如登录的时 候需要验证用户名和密码是否为空,代码如下:
+```
+`<input id="username" type="text"/>`
+`<input id="password" type="password"/>`
+`<input id="submitBtn" type="button" value="提交">`
+```
+JS验证
+```
+var username = document.getElementById( 'username' ),
+  password = document.getElementById( 'password' ),
+  submitBtn = document.getElementById( 'submitBtn' );
+  var formSubmit = function(){
+    if ( username.value === '' ){
+      return alert ( '用户名不能为空' ); }
+    if ( password.value === '' ){
+      return alert ( '密码不能为空' );
+    }
+    var param = {
+      username: username.value,
+      password: password.value
+    }
+ajax(‘xxxxxxx.php’,param);
+  }
+  submitBtn.onclick = function(){
+    formSubmit();
+  }
+```
+formSubmit 函数在此处承担了两个职责,除了提交 ajax 请求之外,还要验证用户输入的合法性。这种代码一来会造成函数臃肿,职责混乱,二来谈不上任何可复用性。
+* 本节的目的是分离校验输入和提交 ajax 请求的代码,我们把校验输入的逻辑放到 validata
+函数中,并且约定当 validata 函数返回 false 的时候,表示校验未通过,代码如下:
+```
+var validata2 = function(){
+  if ( username.value === '' ){
+    alert ( '用户名不能为空' );
+    return false;
+  }
+  if ( password.value === '' ){
+    alert ( '密码不能为空' );
+    return false;
+  }
+}
+var formSubmit2 = function(){
+  if ( validata2() === false ){ //校验未通过
+    return;
+  }
+  var param = {
+    username: username.value,
+    password: password.value
+  }
+  ajax(‘xxxxx’, param)  // ajax 具体实现略
+}
+submitBtn2.onclick = function(){
+  formSubmit2();
+}
+```
+现在的代码已经有了一些改进，我们把校验的逻辑都放到了validata 函数中，但 formSubmit 函数的内部还要计算validata函数的返回值，因为返回值的结果表明了是否通过校验。
+进一步优化这段代码，使validata和formSubmit完全分离开来。首先要改写Function.prototype.before,如果 beforefn 的执行结果返回 false,表示不再执行后面的原函数,代码如下:
+```
+Function.prototype.beforeLogin = function( beforefn ){
+    var __self = this;
+    return function(){
+      if ( beforefn.apply( this, arguments ) === false ){
+      // beforefn 返回 false 的情况直接 return,不再执行后面的原函数
+        return;
+      }
+    return __self.apply( this, arguments );
+    }
+  }
+var validata3 = function(){
+  if ( username.value === '' ){
+    alert ( '用户名不能为空' );
+    return false;
+  }
+  if ( password.value === '' ){
+    alert ( '密码不能为空' );
+    return false;
+  }
+}
+var  formSubmit3 = function(){
+  var param = {
+    username: username.value,
+    password: password.value
+  }
+  ajax(‘xxxxxxxx.php’, param) // ajax 具体实现略
+}
+
+formSubmit3 = formSubmit3.beforeLogin( validata3 );
+
+submitBtn3.onclick = function(){
+  formSubmit3();
+}
+```
+#### 注意-提示
+在这段代码中,校验输入和提交表单的代码完全分离开来,它们不再有任何耦合关系, formSubmit = formSubmit.before( validata )这句代码,如同把校验规则动态接在 formSubmit 函数 之前,validata 成为一个即插即用的函数,它甚至可以被写成配置文件的形式,这有利于我们分 开维护这两个函数。再利用策略模式稍加改造,我们就可以把这些校验规则都写成插件的形式, 用在不同的项目当中。
+值得注意的是,因为函数通过 Function.prototype.before 或者 Function.prototype.after 被装 饰之后,返回的实际上是一个新的函数,如果在原函数上保存了一些属性,那么这些属性会丢失。 代码如下:
+```
+var func = function(){
+    alert( 1 );
+  }
+  func.a = 'aaa';
+
+  func = func.after( function(){
+    alert( 2 );
+  });
+alert( func.a );
+```
+另外,这种装饰方式也叠加了函数的作用域,如果装饰的链条过长,性能上也会受到一些 影响。
+### 小结
+>装饰者模式和代理模式的结构看起来非常相像,这两种模式都描述了怎样为对象提供 一定程度上的间接引用,它们的实现部分都保留了对另外一个对象的引用,并且向那个对象发送 请求
+
+* 代理模式和装饰者模式最重要的区别在于它们的意图和设计目的。代理模式的目的是,当直 接访问本体不方便或者不符合需要时,为这个本体提供一个替代者。本体定义了关键功能,而代 理提供或拒绝对它的访问,或者在访问本体之前做一些额外的事情。装饰者模式的作用就是为对 象动态加入行为。换句话说,代理模式强调一种关系(Proxy 与它的实体之间的关系),这种关系 可以静态的表达,也就是说,这种关系在一开始就可以被确定。而装饰者模式用于一开始不能确 定对象的全部功能时。代理模式通常只有一层代理本体的引用,而装饰者模式经常会形成一条 长长的装饰链。
+* 在虚拟代理实现图片预加载的例子中,本体负责设置 img 节点的 src,代理则提供了预加载 的功能,这看起来也是“加入行为”的一种方式,但这种加入行为的方式和装饰者模式的偏重点 是不一样的。装饰者模式是实实在在的为对象增加新的职责和行为,而代理做的事情还是跟本体 一样,最终都是设置 src。但代理可以加入一些“聪明”的功能,比如在图片真正加载好之前,先使用一张占位的 loading 图片反馈给客户。
+* 这种模式在实际开发中非常 有用,它在框架开发中也十分有用。作为框架作者,我们希望框架里的函 数提供的是一些稳定而方便移植的功能,那些个性化的功能可以在框架之外动态装饰上去,这可 以避免为了让框架拥有更多的功能,而去使用一些 if、else 语句预测用户的实际需要。
